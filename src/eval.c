@@ -277,6 +277,9 @@ typedef struct
  */
 #include "version.h"
 
+#define DICTITEM_ALLOCSIZE_K(k) \
+    ((unsigned)(sizeof(vimvars_var) - sizeof(vimvars_var.di_key) + STRLEN(k) + 1))
+
 /* values for vv_flags: */
 #define VV_COMPAT	1	/* compatible, also used without "v:" */
 #define VV_RO		2	/* read-only */
@@ -6287,7 +6290,7 @@ dictitem_alloc(key)
 {
     dictitem_T *di;
 
-    di = (dictitem_T *)alloc((unsigned)(sizeof(dictitem_T) + STRLEN(key)));
+    di = (dictitem_T *)alloc(DICTITEM_ALLOCSIZE_K(key));
     if (di != NULL)
     {
 	STRCPY(di->di_key, key);
@@ -6305,8 +6308,7 @@ dictitem_copy(org)
 {
     dictitem_T *di;
 
-    di = (dictitem_T *)alloc((unsigned)(sizeof(dictitem_T)
-						      + STRLEN(org->di_key)));
+    di = (dictitem_T *)alloc(DICTITEM_ALLOCSIZE_K(org->di_key));
     if (di != NULL)
     {
 	STRCPY(di->di_key, org->di_key);
@@ -17768,8 +17770,7 @@ set_var(name, tv, copy)
 		return;
 	    }
 
-	v = (dictitem_T *)alloc((unsigned)(sizeof(dictitem_T)
-							  + STRLEN(varname)));
+	v = (dictitem_T *)alloc(DICTITEM_ALLOCSIZE_K(varname));
 	if (v == NULL)
 	    return;
 	STRCPY(v->di_key, varname);
@@ -19714,8 +19715,7 @@ call_user_func(fp, argcount, argvars, rettv, firstline, lastline, selfdict)
 	}
 	else
 	{
-	    v = (dictitem_T *)alloc((unsigned)(sizeof(dictitem_T)
-							     + STRLEN(name)));
+	    v = (dictitem_T *)alloc(DICTITEM_ALLOCSIZE_K(name));
 	    if (v == NULL)
 		break;
 	    v->di_flags = DI_FLAGS_RO;
