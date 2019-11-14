@@ -287,13 +287,12 @@ static size_t dictitem_get_alloc_size_from_k __ARGS((char_u *key));
 #define VV_RO		2	/* read-only */
 #define VV_RO_SBX	4	/* read-only in the sandbox */
 
-#define VV_NAME(s, t)	s, {{t}}, {0}
+#define VV_NAME(s, t)	s, {{t, 0, {0}}, 0, {0}}
 
 static struct vimvar
 {
     char	*vv_name;	/* name of variable, without v: */
     dictitem_T	vv_di;		/* value and name for key */
-    char	vv_filler[16];	/* space for LONGEST name below!!! */
     char	vv_flags;	/* VV_COMPAT, VV_RO, VV_RO_SBX */
 } vimvars[VV_LEN] =
 {
