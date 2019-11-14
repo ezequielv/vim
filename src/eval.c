@@ -277,8 +277,10 @@ typedef struct
  */
 #include "version.h"
 
+static size_t dictitem_get_alloc_size_from_k __ARGS((char_u *key));
+
 #define DICTITEM_ALLOCSIZE_K(k) \
-    ((unsigned)(sizeof(vimvars_var) - sizeof(vimvars_var.di_key) + STRLEN(k) + 1))
+    ((unsigned)dictitem_get_alloc_size_from_k(k))
 
 /* values for vv_flags: */
 #define VV_COMPAT	1	/* compatible, also used without "v:" */
@@ -6276,6 +6278,20 @@ dict_free(d)
     }
     hash_clear(&d->dv_hashtab);
     vim_free(d);
+}
+
+    static size_t
+dictitem_get_alloc_size_from_k(key)
+    char_u	*key;
+{
+#   define LOCAL_SIZEOF_DICTITEM_KEY sizeof(((dictitem_T*)0)->di_key)
+    if (key == NULL)
+	return sizeof(dictitem_T);
+    const size_t klen = STRLEN(key);
+    if (klen < LOCAL_SIZEOF_DICTITEM_KEY)
+	return sizeof(dictitem_T);
+    return sizeof(dictitem_T) - LOCAL_SIZEOF_DICTITEM_KEY + klen + 1;
+#   undef LOCAL_SIZEOF_DICTITEM_KEY
 }
 
 /*
